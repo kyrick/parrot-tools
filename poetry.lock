@@ -294,7 +294,7 @@ python-versions = ">=3.7"
 
 [[package]]
 name = "pillow"
-version = "7.1.0"
+version = "7.1.2"
 description = "Python Imaging Library (Fork)"
 category = "main"
 optional = false
@@ -548,7 +548,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "2911cd70ec4b759d8ac1a9c9f12118a89841a41559f090f2d381928ab488dc23"
+content-hash = "93b63e697fed1908b7137ccd4203323f50b2cab4c8a04f38172ea87eef3f2221"
 
 [metadata.files]
 atomicwrites = []
