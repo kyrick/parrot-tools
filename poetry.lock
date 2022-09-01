@@ -491,6 +491,14 @@ slack = ["slack-sdk"]
 telegram = ["requests"]
 
 [[package]]
+name = "types-pillow"
+version = "9.2.1"
+description = "Typing stubs for Pillow"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "4.3.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -526,7 +534,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "021d84d2629e15923f6ebceaa4c526ba94614c41d8b323be3cc34a166fa566cf"
+content-hash = "ea4e2cb48dbef2def135a807793b97c5f29cfb29150ccbbcfeddbcaf3a5a082b"
 
 [metadata.files]
 atomicwrites = []
@@ -615,6 +623,7 @@ tomli = [
 ]
 torch = []
 tqdm = []
+types-pillow = []
 typing-extensions = []
 urllib3 = []
 zipp = []
