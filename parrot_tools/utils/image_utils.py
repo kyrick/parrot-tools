@@ -1,19 +1,23 @@
-from typing import List
+from typing import List, Optional
 
 from PIL import Image
 
 
 def make_image_grids(
     images: List[Image.Image],
+    cols: Optional[int] = None,
     max_per_grid: int = 6,
     padding: int = 10,
     bg_color: str = "black",
 ) -> List[Image.Image]:
     """Make a list of image grids from a list of images."""
 
-    # calc columns and rows from max_per_grid
-    cols = max_per_grid // 2
-    rows = max_per_grid // cols
+    # calc columns and rows from max_per_grid with max cols
+    if cols:
+        rows = max_per_grid // cols
+    else:
+        cols = max_per_grid // 2
+        rows = max_per_grid // cols
 
     # split images into sublists of max_per_grid
     image_sublists = [
