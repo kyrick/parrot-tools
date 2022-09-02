@@ -13,10 +13,10 @@ def make_image_grids(
     """Make a list of image grids from a list of images."""
 
     # calc columns and rows from max_per_grid with max cols
-    if cols:
+    if cols is None or cols > max_per_grid or cols < 1:
+        cols = max_per_grid // 2
         rows = max_per_grid // cols
     else:
-        cols = max_per_grid // 2
         rows = max_per_grid // cols
 
     # split images into sublists of max_per_grid
