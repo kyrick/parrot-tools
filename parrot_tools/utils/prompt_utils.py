@@ -4,6 +4,18 @@ from parrot_tools.generate.settings import Prompt
 from parrot_tools.utils.file_utils import format_base_filename
 
 
+def _parse_name(name: str) -> str:
+    """Parse name into format last, first"""
+    name = name.replace("\t", ",").strip()
+    if "," not in name:
+        # if space in name, assume it's a first name
+        if " " in name:
+            # return last, first
+            return f"{name.split(' ')[-1]}, {' '.join(name.split(' ')[:-1])}"
+        return f", {name}"
+    return name
+
+
 def _format_style_for_prompt(style_name: str) -> str:
     """Format style name for prompt.
 
@@ -46,13 +58,7 @@ def prepare_prompts_for_study(
     if append_to_all_prompts and not append_to_all_prompts.startswith(","):
         append_to_all_prompts = ", " + append_to_all_prompts
 
-    def _prepare_name(name: str) -> str:
-        name = name.replace("\t", ",").strip()
-        if "," not in name:
-            return f", {name}"
-        return name
-
-    names_list = [_prepare_name(x) for x in names_block.splitlines() if x.strip()]
+    names_list = [_parse_name(x) for x in names_block.splitlines() if x.strip()]
     modifiers_list = [x.strip() for x in modifiers_block.splitlines() if x.strip()]
     base_prompts = [x.strip() for x in base_prompts_block.splitlines() if x.strip()]
 

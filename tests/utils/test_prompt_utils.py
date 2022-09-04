@@ -12,6 +12,7 @@ def test_prepare_prompts_for_study():
     da Vinci, Leonardo
     Friedrich\tCaspar David
     RHADS
+    Gediminas Pranckevicius
     """
 
     modifiers_block = """
@@ -24,7 +25,7 @@ def test_prepare_prompts_for_study():
         base_prompts_block, names_block, modifiers_block, append_to_all_prompts
     )
 
-    assert len(prompts) == 12
+    assert len(prompts) == 14
     assert prompts[0].folder_name == "Aivazovsky_Ivan"
     assert prompts[0].base_filename == "Aivazovsky_Ivan"
     assert prompts[0].prompt == "This is a test prompt by Ivan Aivazovsky, artstation"
@@ -43,10 +44,17 @@ def test_prepare_prompts_for_study():
     assert prompts[6].base_filename == "RHADS"
     assert prompts[6].prompt == "This is a test prompt by RHADS, artstation"
 
-    assert prompts[8].folder_name == "synthwave"
-    assert prompts[8].base_filename == "synthwave"
-    assert prompts[8].prompt == "This is a test prompt, synthwave, artstation"
+    assert prompts[8].folder_name == "Pranckevicius_Gediminas"
+    assert prompts[8].base_filename == "Pranckevicius_Gediminas"
+    assert (
+        prompts[8].prompt
+        == "This is a test prompt by Gediminas Pranckevicius, artstation"
+    )
 
-    assert prompts[10].folder_name == "vaporwave"
-    assert prompts[10].base_filename == "vaporwave"
-    assert prompts[10].prompt == "This is a test prompt, vaporwave, artstation"
+    assert prompts[10].folder_name == "synthwave"
+    assert prompts[10].base_filename == "synthwave"
+    assert prompts[10].prompt == "This is a test prompt, synthwave, artstation"
+
+    assert prompts[12].folder_name == "vaporwave"
+    assert prompts[12].base_filename == "vaporwave"
+    assert prompts[12].prompt == "This is a test prompt, vaporwave, artstation"
