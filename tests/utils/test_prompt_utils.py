@@ -25,28 +25,28 @@ def test_prepare_prompts_for_study():
     )
 
     assert len(prompts) == 12
-    assert prompts[0].name == "Ivan Aivazovsky"
-    assert prompts[0].filename == "Aivazovsky_Ivan"
+    assert prompts[0].folder_name == "Aivazovsky_Ivan"
+    assert prompts[0].base_filename == "Aivazovsky_Ivan"
     assert prompts[0].prompt == "This is a test prompt by Ivan Aivazovsky, artstation"
     assert (
         prompts[1].prompt
         == "This is another test prompt by Ivan Aivazovsky, artstation"
     )
 
-    assert prompts[2].name == "Leonardo da Vinci"
-    assert prompts[2].filename == "da_Vinci_Leonardo"
+    assert prompts[2].folder_name == "da_Vinci_Leonardo"
+    assert prompts[2].base_filename == "da_Vinci_Leonardo"
 
-    assert prompts[4].name == "Caspar David Friedrich"
-    assert prompts[4].filename == "Friedrich_Caspar_David"
+    assert prompts[4].folder_name == "Friedrich_Caspar_David"
+    assert prompts[4].base_filename == "Friedrich_Caspar_David"
 
-    assert prompts[6].name == "RHADS"
-    assert prompts[6].filename == "RHADS"
+    assert prompts[6].folder_name == "RHADS"
+    assert prompts[6].base_filename == "RHADS"
     assert prompts[6].prompt == "This is a test prompt by RHADS, artstation"
 
-    assert prompts[8].name == "synthwave"
-    assert prompts[8].filename == "synthwave"
+    assert prompts[8].folder_name == "synthwave"
+    assert prompts[8].base_filename == "synthwave"
     assert prompts[8].prompt == "This is a test prompt, synthwave, artstation"
 
-    assert prompts[10].name == "vaporwave"
-    assert prompts[10].filename == "vaporwave"
+    assert prompts[10].folder_name == "vaporwave"
+    assert prompts[10].base_filename == "vaporwave"
     assert prompts[10].prompt == "This is a test prompt, vaporwave, artstation"

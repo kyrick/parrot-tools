@@ -1,18 +1,7 @@
-from dataclasses import dataclass
 from typing import List
 
+from parrot_tools.generate.settings import Prompt
 from parrot_tools.utils.file_utils import format_base_filename
-
-
-@dataclass(frozen=True)
-class Prompt:
-    name: str
-    filename: str
-    prompt: str
-
-
-def _format_for_name(name: str) -> str:
-    return _format_style_for_prompt(name).replace("by", "").replace(",", "").strip()
 
 
 def _format_style_for_prompt(style_name: str) -> str:
@@ -70,8 +59,8 @@ def prepare_prompts_for_study(
     # build up list of prompts to run
     prompts_to_run = [
         Prompt(
-            name=_format_for_name(a),
-            filename=format_base_filename(a),
+            folder_name=format_base_filename(a),
+            base_filename=format_base_filename(a),
             prompt=f"{b}{_format_style_for_prompt(a)}{append_to_all_prompts}",
         )
         for a in names_list + modifiers_list
