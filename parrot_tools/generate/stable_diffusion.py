@@ -83,13 +83,8 @@ def get_run_id(settings_folder: Path) -> int:
     return 0
 
 
-def run_prompts(
-    pipe, images_out_path: Path, prompts: List[Prompt], batch_settings: BatchSettings
-):
-
-    batch_folder = images_out_path / batch_settings.batch_name
-    os.makedirs(batch_folder, exist_ok=True)
-
+def run_prompts(pipe, prompts: List[Prompt], batch_settings: BatchSettings):
+    # loop through prompts and generate images!
     for prompt in prompts:
         settings = RunSettings(prompt=prompt, batch=batch_settings)
 
