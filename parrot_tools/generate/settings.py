@@ -8,6 +8,7 @@ from pydantic import BaseModel
 class ImageFormat(str, Enum):
     PNG = "png"
     JPG = "jpg"
+    JPEG = "jpeg"
 
 
 class Prompt(BaseModel):
