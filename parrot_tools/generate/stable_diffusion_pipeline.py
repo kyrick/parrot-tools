@@ -18,16 +18,18 @@ from transformers import CLIPFeatureExtractor, CLIPTextModel, CLIPTokenizer
 
 
 def preprocess(image):
+    image = image.convert("RGB")  # remove alpha channel
     w, h = image.size
     w, h = map(lambda x: x - x % 32, (w, h))  # resize to integer multiple of 32
     image = image.resize((w, h), resample=PIL.Image.LANCZOS)
     image = np.array(image).astype(np.float32) / 255.0
     image = image[None].transpose(0, 3, 1, 2)
     image = torch.from_numpy(image)
+
     return 2.0 * image - 1.0
 
 
-class StableDiffusionPipeline(DiffusionPipeline):
+class StableDiffusionPipelineCustom(DiffusionPipeline):
     def __init__(
         self,
         vae: AutoencoderKL,
@@ -144,9 +146,16 @@ class StableDiffusionPipeline(DiffusionPipeline):
             if not isinstance(init_image, torch.FloatTensor):
                 init_image = preprocess(init_image)
 
+            # print("encode")
+            # # encode the init image into latents and scale the latents
+            # init_latent_dist = self.vae.encode(init_image.to(self.device)).latent_dist
+            # print("encode2")
+            # init_latents = init_latent_dist.sample(generator=generator)
+            # print("encode3")
+            # init_latents = 0.18215 * init_latents
+
             # encode the init image into latents and scale the latents
-            init_latent_dist = self.vae.encode(init_image.to(self.device)).latent_dist
-            init_latents = init_latent_dist.sample(generator=generator)
+            init_latents = self.vae.encode(init_image.to(self.device)).sample()
             init_latents = 0.18215 * init_latents
 
             # expand init_latents for batch_size
@@ -199,14 +208,20 @@ class StableDiffusionPipeline(DiffusionPipeline):
         if accepts_eta:
             extra_step_kwargs["eta"] = eta
 
-        for i, t in enumerate(self.scheduler.timesteps):
+        t_start = max(num_inference_steps - init_timestep + offset, 0)
+        for i, t in enumerate(self.scheduler.timesteps[t_start:]):
+            t_index = t_start + i
             # expand the latents if we are doing classifier free guidance
             latent_model_input = (
                 torch.cat([latents] * 2) if do_classifier_free_guidance else latents
             )
+            # if we use LMSDiscreteScheduler, let's make sure latents are mulitplied by sigmas
             if isinstance(self.scheduler, LMSDiscreteScheduler):
-                sigma = self.scheduler.sigmas[i]
+                sigma = self.scheduler.sigmas[t_index]
+                # the model input needs to be scaled to match the continuous ODE formulation in K-LMS
                 latent_model_input = latent_model_input / ((sigma**2 + 1) ** 0.5)
+                latent_model_input = latent_model_input.to(self.unet.dtype)
+                t = t.to(self.unet.dtype)
 
             # predict the noise residual
             noise_pred = self.unet(
@@ -223,7 +238,7 @@ class StableDiffusionPipeline(DiffusionPipeline):
             # compute the previous noisy sample x_t -> x_t-1
             if isinstance(self.scheduler, LMSDiscreteScheduler):
                 latents = self.scheduler.step(
-                    noise_pred, i, latents, **extra_step_kwargs
+                    noise_pred, t_index, latents, **extra_step_kwargs
                 )["prev_sample"]
             else:
                 latents = self.scheduler.step(
