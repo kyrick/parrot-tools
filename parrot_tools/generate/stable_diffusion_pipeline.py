@@ -167,6 +167,15 @@ class StableDiffusionPipeline(DiffusionPipeline):
                     [timesteps] * batch_size, dtype=torch.long, device=self.device
                 )
 
+            # add noise to latents using the timesteps
+            noise = torch.randn(
+                init_latents.shape, generator=generator, device=self.device
+            )
+            init_latents = self.scheduler.add_noise(init_latents, noise, timesteps).to(
+                self.device
+            )
+            latents = init_latents
+
         else:
             # get the intial random noise
             latents = torch.randn(
