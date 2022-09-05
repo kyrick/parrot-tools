@@ -2,7 +2,7 @@ import os
 from glob import glob
 from pathlib import Path
 from random import randint
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import torch
 from IPython.display import display  # type: ignore
@@ -23,6 +23,8 @@ def generate_image(
     cfg_scale: float,
     height: int,
     width: int,
+    init_image: Optional[Image.Image] = None,
+    init_strength: Optional[float] = None,
 ) -> Dict[str, Any]:
     generator = torch.Generator("cuda").manual_seed(seed)
 
@@ -34,6 +36,8 @@ def generate_image(
             generator=generator,
             height=height,
             width=width,
+            init_image=init_image,
+            init_strength=init_strength,
         )
 
     return res
@@ -48,6 +52,8 @@ def generate_image_with_retries(
     cfg_scale: float,
     height: int,
     width: int,
+    init_image: Optional[Image.Image] = None,
+    init_strength: Optional[float] = None,
     retry: int = 0,
 ) -> Tuple[Image.Image, int]:
     image = Image.new("RGB", (width, height), "black")
@@ -61,6 +67,8 @@ def generate_image_with_retries(
             cfg_scale=cfg_scale,
             height=height,
             width=width,
+            init_image=init_image,
+            init_strength=init_strength,
         )
         image = res["sample"][0]
         final_seed = i
@@ -107,6 +115,12 @@ def run_prompts(pipe, prompts: List[Prompt], batch_settings: BatchSettings):
 
         images = []
         for i in trange(settings.batch.batch_size):
+
+            init_image = None
+            # if there is an init image, we load it
+            if prompt.init_image is not None:
+                init_image = Image.open(prompt.init_image)
+
             image, seed = generate_image_with_retries(
                 pipe,
                 prompt=prompt.prompt,
@@ -115,6 +129,8 @@ def run_prompts(pipe, prompts: List[Prompt], batch_settings: BatchSettings):
                 cfg_scale=settings.batch.cfg_scale,
                 height=settings.batch.image_h,
                 width=settings.batch.image_w,
+                init_image=init_image,
+                init_strength=prompt.init_strength,
                 retry=settings.batch.NSFW_retry,
             )
             images.append(image)

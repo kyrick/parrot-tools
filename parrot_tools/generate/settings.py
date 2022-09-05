@@ -15,6 +15,8 @@ class Prompt(BaseModel):
     folder_name: Optional[str] = None
     base_filename: str
     prompt: str
+    init_image: Optional[Path] = None
+    init_strength: Optional[float] = None
 
 
 class BatchSettings(BaseModel):
