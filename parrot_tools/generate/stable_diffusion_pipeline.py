@@ -17,8 +17,25 @@ from diffusers.pipelines.stable_diffusion import StableDiffusionSafetyChecker
 from transformers import CLIPFeatureExtractor, CLIPTextModel, CLIPTokenizer
 
 
-def preprocess(image):
-    image = image.convert("RGB")  # remove alpha channel
+def scale_image(image, max_pixels):
+    """Scale image to have at most `max_pixels` pixels."""
+    w, h = image.size
+    scale = np.sqrt(max_pixels / (w * h))
+    if scale < 1.0:
+        image = image.resize(
+            (int(w * scale), int(h * scale)), resample=PIL.Image.LANCZOS
+        )
+    return image
+
+
+def preprocess(image, max_pixels=262144):
+    # remove alpha channel
+    if image.mode == "RGBA":
+        image = image.convert("RGB")
+
+    # if image is bigger than total number of pixels, scale it down
+    image = scale_image(image, max_pixels=max_pixels)
+
     w, h = image.size
     w, h = map(lambda x: x - x % 32, (w, h))  # resize to integer multiple of 32
     image = image.resize((w, h), resample=PIL.Image.LANCZOS)
@@ -59,7 +76,8 @@ class StableDiffusionPipelineCustom(DiffusionPipeline):
         height: Optional[int] = 512,
         width: Optional[int] = 512,
         init_image: Optional[Union[torch.FloatTensor, PIL.Image.Image]] = None,
-        strength: float = 0.8,
+        init_max_pixels=262144,
+        init_strength: float = 0.8,
         num_inference_steps: Optional[int] = 50,
         guidance_scale: Optional[float] = 7.5,
         eta: Optional[float] = 0.0,
@@ -93,9 +111,9 @@ class StableDiffusionPipelineCustom(DiffusionPipeline):
                 f"`height` and `width` have to be divisible by 8 but are {height} and {width}."
             )
 
-        if strength < 0 or strength > 1:
+        if init_strength < 0 or init_strength > 1:
             raise ValueError(
-                f"The value of strength should in [0.0, 1.0] but is {strength}"
+                f"The value of strength should in [0.0, 1.0] but is {init_strength}"
             )
 
         # get prompt text embeddings
@@ -144,15 +162,7 @@ class StableDiffusionPipelineCustom(DiffusionPipeline):
 
         if init_image is not None:
             if not isinstance(init_image, torch.FloatTensor):
-                init_image = preprocess(init_image)
-
-            # print("encode")
-            # # encode the init image into latents and scale the latents
-            # init_latent_dist = self.vae.encode(init_image.to(self.device)).latent_dist
-            # print("encode2")
-            # init_latents = init_latent_dist.sample(generator=generator)
-            # print("encode3")
-            # init_latents = 0.18215 * init_latents
+                init_image = preprocess(init_image, max_pixels=init_max_pixels)
 
             # encode the init image into latents and scale the latents
             init_latents = self.vae.encode(init_image.to(self.device)).sample()
@@ -162,7 +172,7 @@ class StableDiffusionPipelineCustom(DiffusionPipeline):
             init_latents = torch.cat([init_latents] * batch_size)
 
             # get the original timestep using init_timestep
-            init_timestep = int(num_inference_steps * strength) + offset
+            init_timestep = int(num_inference_steps * init_strength) + offset
             init_timestep = min(init_timestep, num_inference_steps)
             if isinstance(self.scheduler, LMSDiscreteScheduler):
                 timesteps = torch.tensor(
