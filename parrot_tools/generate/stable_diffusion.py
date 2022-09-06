@@ -24,7 +24,8 @@ def generate_image(
     height: int,
     width: int,
     init_image: Optional[Image.Image] = None,
-    init_strength: Optional[float] = None,
+    init_strength: float = 0.7,
+    init_max_pixels: int = 262144,
 ) -> Dict[str, Any]:
     generator = torch.Generator("cuda").manual_seed(seed)
 
@@ -38,6 +39,7 @@ def generate_image(
             width=width,
             init_image=init_image,
             init_strength=init_strength,
+            init_max_pixels=init_max_pixels,
         )
 
     return res
@@ -53,7 +55,8 @@ def generate_image_with_retries(
     height: int,
     width: int,
     init_image: Optional[Image.Image] = None,
-    init_strength: Optional[float] = None,
+    init_strength: float = 0.7,
+    init_max_pixels: int = 262144,
     retry: int = 0,
 ) -> Tuple[Image.Image, int]:
     image = Image.new("RGB", (width, height), "black")
@@ -69,6 +72,7 @@ def generate_image_with_retries(
             width=width,
             init_image=init_image,
             init_strength=init_strength,
+            init_max_pixels=init_max_pixels,
         )
         image = res["sample"][0]
         final_seed = i
@@ -131,6 +135,7 @@ def run_prompts(pipe, prompts: List[Prompt], batch_settings: BatchSettings):
                 width=settings.batch.image_w,
                 init_image=init_image,
                 init_strength=prompt.init_strength,
+                init_max_pixels=settings.batch.init_max_pixels,
                 retry=settings.batch.NSFW_retry,
             )
             images.append(image)

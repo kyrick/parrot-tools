@@ -76,7 +76,7 @@ class StableDiffusionPipelineCustom(DiffusionPipeline):
         height: Optional[int] = 512,
         width: Optional[int] = 512,
         init_image: Optional[Union[torch.FloatTensor, PIL.Image.Image]] = None,
-        init_max_pixels=262144,
+        init_max_pixels: int = 262144,
         init_strength: float = 0.8,
         num_inference_steps: Optional[int] = 50,
         guidance_scale: Optional[float] = 7.5,

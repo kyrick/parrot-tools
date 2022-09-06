@@ -24,6 +24,7 @@ class BatchSettings(BaseModel):
     batch_name: str
     base_path: Path
 
+    init_max_pixels: int = 262144
     steps: int = 50
     cfg_scale: float = 7.5
     seed: int = -1
