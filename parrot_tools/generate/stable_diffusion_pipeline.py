@@ -37,7 +37,7 @@ def preprocess(image, max_pixels=262144):
     image = scale_image(image, max_pixels=max_pixels)
 
     w, h = image.size
-    w, h = map(lambda x: x - x % 32, (w, h))  # resize to integer multiple of 32
+    w, h = map(lambda x: x - x % 64, (w, h))  # resize to integer multiple of 32
     image = image.resize((w, h), resample=PIL.Image.LANCZOS)
     image = np.array(image).astype(np.float32) / 255.0
     image = image[None].transpose(0, 3, 1, 2)
