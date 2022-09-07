@@ -30,8 +30,8 @@ def scale_image(image, max_pixels):
 
 def preprocess(image, max_pixels=262144):
     # remove alpha channel
-    if image.mode == "RGBA":
-        image = image.convert("RGB")
+
+    image = image.convert("RGB")
 
     # if image is bigger than total number of pixels, scale it down
     image = scale_image(image, max_pixels=max_pixels)
