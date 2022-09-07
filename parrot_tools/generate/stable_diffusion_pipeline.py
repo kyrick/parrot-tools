@@ -111,10 +111,11 @@ class StableDiffusionPipelineCustom(DiffusionPipeline):
                 f"`height` and `width` have to be divisible by 8 but are {height} and {width}."
             )
 
-        if init_strength < 0 or init_strength > 1:
-            raise ValueError(
-                f"The value of strength should in [0.0, 1.0] but is {init_strength}"
-            )
+        if init_image is not None:
+            if init_strength < 0 or init_strength > 1:
+                raise ValueError(
+                    f"The value of strength should in [0.0, 1.0] but is {init_strength}"
+                )
 
         # get prompt text embeddings
         text_input = self.tokenizer(
