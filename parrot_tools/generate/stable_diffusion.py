@@ -129,9 +129,6 @@ def get_run_id(settings_folder: Path) -> int:
 
 def run_prompts(pipe, prompts: List[Prompt], batch_settings: BatchSettings):
 
-    # set the scheduler on the pipe
-    set_scheduler(pipe, batch_settings.scheduler)
-
     # loop through prompts and generate images!
     for prompt in prompts:
         settings = RunSettings(prompt=prompt, batch=batch_settings)
