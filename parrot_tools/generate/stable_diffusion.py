@@ -5,13 +5,45 @@ from random import randint
 from typing import Any, Dict, List, Optional, Tuple
 
 import torch
+from diffusers.schedulers.scheduling_ddim import DDIMScheduler
+from diffusers.schedulers.scheduling_lms_discrete import LMSDiscreteScheduler
+from diffusers.schedulers.scheduling_pndm import PNDMScheduler
 from IPython.display import display  # type: ignore
 from PIL import Image
 from torch import autocast
 from tqdm import trange  # type: ignore
 
-from parrot_tools.generate.settings import BatchSettings, Prompt, RunSettings
+from parrot_tools.generate.settings import (
+    BatchSettings,
+    Prompt,
+    RunSettings,
+    SchedulerType,
+)
 from parrot_tools.utils.image_utils import make_image_grids
+
+
+def set_scheduler(pipe, scheduler: SchedulerType):
+    if scheduler == SchedulerType.DDIM:
+        ddim = DDIMScheduler(
+            beta_start=0.00085,
+            beta_end=0.012,
+            beta_schedule="scaled_linear",
+            clip_sample=False,
+            set_alpha_to_one=False,
+        )
+        pipe.scheduler = ddim
+    elif scheduler == SchedulerType.K_LMS:
+        lms = LMSDiscreteScheduler(
+            beta_start=0.00085, beta_end=0.012, beta_schedule="scaled_linear"
+        )
+        pipe.scheduler = lms
+    elif scheduler == SchedulerType.PNDM:
+        pndm = PNDMScheduler(
+            beta_start=0.00085, beta_end=0.012, beta_schedule="scaled_linear"
+        )
+        pipe.scheduler = pndm
+    else:
+        raise ValueError(f"Unknown scheduler {scheduler}")
 
 
 def generate_image(
@@ -96,6 +128,10 @@ def get_run_id(settings_folder: Path) -> int:
 
 
 def run_prompts(pipe, prompts: List[Prompt], batch_settings: BatchSettings):
+
+    # set the scheduler on the pipe
+    set_scheduler(pipe, batch_settings.scheduler)
+
     # loop through prompts and generate images!
     for prompt in prompts:
         settings = RunSettings(prompt=prompt, batch=batch_settings)

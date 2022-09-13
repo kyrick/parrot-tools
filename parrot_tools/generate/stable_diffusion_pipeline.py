@@ -87,10 +87,7 @@ class StableDiffusionPipelineCustom(DiffusionPipeline):
     ):
         if "torch_device" in kwargs:
             device = kwargs.pop("torch_device")
-            warnings.warn(
-                "`torch_device` is deprecated as an input argument to `__call__` and will be removed in v0.3.0."
-                " Consider using `pipe.to(torch_device)` instead."
-            )
+            warnings.warn(" Consider using `pipe.to(torch_device)` instead.")
 
             # Set device as before (to be removed in 0.3.0)
             if device is None:

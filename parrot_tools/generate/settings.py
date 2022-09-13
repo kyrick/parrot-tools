@@ -19,10 +19,18 @@ class Prompt(BaseModel):
     init_strength: Optional[float] = None
 
 
+class SchedulerType(str, Enum):
+    K_LMS = "k_lms"
+    PNDM = "pndm"
+    DDIM = "ddim"
+
+
 class BatchSettings(BaseModel):
     batch_size: int
     batch_name: str
     base_path: Path
+
+    scheduler: SchedulerType = SchedulerType.K_LMS
 
     init_max_pixels: int = 262144
     steps: int = 50
