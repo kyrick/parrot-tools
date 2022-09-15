@@ -215,14 +215,17 @@ def test_prepare_hybrid_prompts_for_study__modifiers():
     )
 
 
-def test_prepare_hybrid_prompts_for_study__too_few():
+def test_prepare_hybrid_prompts_for_study__names_and_modifiers():
 
     base_prompts_block = """
     This is a test prompt
     This is another test prompt
     """
 
-    names_block = ""
+    names_block = """
+    Aivazovsky, Ivan
+    RHADS
+    """
 
     modifiers_block = """
     synthwave
@@ -230,11 +233,24 @@ def test_prepare_hybrid_prompts_for_study__too_few():
 
     append_to_all_prompts = "artstation"
 
-    with pytest.raises(ValueError):
-        prompts = prepare_hybrid_prompts_for_study(
-            base_prompts_block,
-            names_block,
-            modifiers_block,
-            append_to_all_prompts,
-            hybrid_count=1,
-        )
+    prompts = prepare_hybrid_prompts_for_study(
+        base_prompts_block,
+        names_block,
+        modifiers_block,
+        append_to_all_prompts,
+        hybrid_count=1,
+        hybridize_everything=True,
+    )
+
+    assert len(prompts) == 6
+    assert prompts[0].folder_name == "by_Ivan_Aivazovsky_by_RHADS"
+    assert prompts[0].base_filename == "by_Ivan_Aivazovsky_by_RHADS"
+    assert (
+        prompts[0].prompt
+        == "This is a test prompt, by Ivan Aivazovsky, by RHADS, artstation"
+    )
+
+    assert (
+        prompts[5].prompt
+        == "This is another test prompt, by RHADS, synthwave, artstation"
+    )

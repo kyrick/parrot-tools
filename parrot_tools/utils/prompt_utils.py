@@ -109,6 +109,7 @@ def prepare_hybrid_prompts_for_study(
     modifiers_block: str,
     append_to_all_prompts: str,
     hybrid_count: int,
+    hybridize_everything: bool = False,
 ) -> List[Prompt]:
     """Prepare prompts for study.
 
@@ -118,6 +119,7 @@ def prepare_hybrid_prompts_for_study(
         modifiers_block (str): block of modifiers separated by newlines
         append_to_all_prompts (str): a string to append to all prompts
         hybrid_count (int): the count of additional modifiers to add to each prompt
+        hybridize_everything (bool): whether to names and modifiers
 
     Returns:
         List[Prompt]: List of prompts to study
@@ -128,34 +130,43 @@ def prepare_hybrid_prompts_for_study(
         append_to_all_prompts = ", " + append_to_all_prompts
 
     # split up the blocks into lists
-    names_list = [_parse_name(x) for x in names_block.splitlines() if x.strip()]
+    names_list = [
+        _format_name_for_prompt(_parse_name(x))
+        for x in names_block.splitlines()
+        if x.strip()
+    ]
     modifiers_list = [x.strip() for x in modifiers_block.splitlines() if x.strip()]
     base_prompts = [x.strip() for x in base_prompts_block.splitlines() if x.strip()]
 
-    # check if there are enough names
-    if 0 < len(names_list) < hybrid_count + 1:
-        raise ValueError(
-            f"Not enough styles to add {hybrid_count} hybrids. Please add more names."
-        )
-    # check if there are enough modifiers
-    if 0 < len(modifiers_list) < hybrid_count + 1:
-        raise ValueError(
-            f"Not enough modifiers to add {hybrid_count} hybrids. Please add more names."
-        )
+    # if hybridize everything, add the names and modifiers to the lists and hybridize ALL THE THINGS!!!
+    if hybridize_everything:
+        # build up list of prompts to run
+        prompts = []
+
+        names_list = [f"by {name}" for name in names_list]
+        for items in unique_combinations(names_list + modifiers_list, hybrid_count + 1):
+            for b in base_prompts:
+                base_filename = format_base_filename("_".join(items))
+                prompts.append(
+                    Prompt(
+                        folder_name=base_filename,
+                        base_filename=base_filename,
+                        prompt=f"{b}, {', '.join(items)}{append_to_all_prompts}",
+                    )
+                )
+        return prompts
 
     # build up list of prompts to run
     prompts = []
-
     # add all the artist prompts
     for names in unique_combinations(names_list, hybrid_count + 1):
-        formatted_names = [_format_name_for_prompt(name) for name in names]
-        base_filename = format_base_filename("_".join(formatted_names))
+        base_filename = format_base_filename("_".join(names))
         for b in base_prompts:
             prompts.append(
                 Prompt(
                     folder_name=base_filename,
                     base_filename=base_filename,
-                    prompt=f"{b} by {' and '.join(formatted_names)}{append_to_all_prompts}",
+                    prompt=f"{b} by {' and '.join(names)}{append_to_all_prompts}",
                 )
             )
 
