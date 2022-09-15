@@ -140,7 +140,7 @@ def test_prepare_prompts_for_study_with_empty_append_to_all_prompts():
     assert prompts[1].prompt == "This is another test prompt by Ivan Aivazovsky"
 
 
-def test_prepare_hybrid_prompts_for_study():
+def test_prepare_hybrid_prompts_for_study__names():
 
     base_prompts_block = """
     This is a test prompt
@@ -173,7 +173,7 @@ def test_prepare_hybrid_prompts_for_study():
     )
 
 
-def test_prepare_hybrid_prompts_for_study():
+def test_prepare_hybrid_prompts_for_study__modifiers():
 
     base_prompts_block = """
     This is a test prompt
@@ -203,3 +203,25 @@ def test_prepare_hybrid_prompts_for_study():
         prompts[1].prompt
         == "This is another test prompt, synthwave, vaporwave, artstation"
     )
+
+
+def test_prepare_hybrid_prompts_for_study__too_few():
+
+    base_prompts_block = """
+    This is a test prompt
+    This is another test prompt
+    """
+
+    names_block = ""
+
+    modifiers_block = """
+    synthwave
+    """
+
+    append_to_all_prompts = "artstation"
+
+    prompts = prepare_hybrid_prompts_for_study(
+        base_prompts_block, names_block, modifiers_block, append_to_all_prompts, count=2
+    )
+
+    assert len(prompts) == 0
