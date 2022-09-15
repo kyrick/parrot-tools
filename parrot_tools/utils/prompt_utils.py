@@ -117,7 +117,7 @@ def prepare_hybrid_prompts_for_study(
         names_block (str): block of names separated by newlines
         modifiers_block (str): block of modifiers separated by newlines
         append_to_all_prompts (str): a string to append to all prompts
-        hybrid_count (int): the amount to hybridize per study
+        count (int): the amount to hybridize per study
 
     Returns:
         List[Prompt]: List of prompts to study
