@@ -1,3 +1,5 @@
+import pytest
+
 from parrot_tools.utils.prompt_utils import (
     prepare_hybrid_prompts_for_study,
     prepare_prompts_for_study,
@@ -157,7 +159,11 @@ def test_prepare_hybrid_prompts_for_study__names():
     append_to_all_prompts = "artstation"
 
     prompts = prepare_hybrid_prompts_for_study(
-        base_prompts_block, names_block, modifiers_block, append_to_all_prompts, count=2
+        base_prompts_block,
+        names_block,
+        modifiers_block,
+        append_to_all_prompts,
+        hybrid_count=1,
     )
 
     assert len(prompts) == 2
@@ -190,7 +196,11 @@ def test_prepare_hybrid_prompts_for_study__modifiers():
     append_to_all_prompts = "artstation"
 
     prompts = prepare_hybrid_prompts_for_study(
-        base_prompts_block, names_block, modifiers_block, append_to_all_prompts, count=2
+        base_prompts_block,
+        names_block,
+        modifiers_block,
+        append_to_all_prompts,
+        hybrid_count=1,
     )
 
     assert len(prompts) == 2
@@ -220,8 +230,11 @@ def test_prepare_hybrid_prompts_for_study__too_few():
 
     append_to_all_prompts = "artstation"
 
-    prompts = prepare_hybrid_prompts_for_study(
-        base_prompts_block, names_block, modifiers_block, append_to_all_prompts, count=2
-    )
-
-    assert len(prompts) == 0
+    with pytest.raises(ValueError):
+        prompts = prepare_hybrid_prompts_for_study(
+            base_prompts_block,
+            names_block,
+            modifiers_block,
+            append_to_all_prompts,
+            hybrid_count=1,
+        )

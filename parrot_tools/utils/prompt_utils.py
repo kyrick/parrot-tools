@@ -108,7 +108,7 @@ def prepare_hybrid_prompts_for_study(
     names_block: str,
     modifiers_block: str,
     append_to_all_prompts: str,
-    count: int,
+    hybrid_count: int,
 ) -> List[Prompt]:
     """Prepare prompts for study.
 
@@ -117,7 +117,7 @@ def prepare_hybrid_prompts_for_study(
         names_block (str): block of names separated by newlines
         modifiers_block (str): block of modifiers separated by newlines
         append_to_all_prompts (str): a string to append to all prompts
-        count (int): the amount to hybridize per study
+        hybrid_count (int): the count of additional modifiers to add to each prompt
 
     Returns:
         List[Prompt]: List of prompts to study
@@ -132,11 +132,22 @@ def prepare_hybrid_prompts_for_study(
     modifiers_list = [x.strip() for x in modifiers_block.splitlines() if x.strip()]
     base_prompts = [x.strip() for x in base_prompts_block.splitlines() if x.strip()]
 
+    # check if there are enough names
+    if 0 < len(names_list) < hybrid_count + 1:
+        raise ValueError(
+            f"Not enough styles to add {hybrid_count} hybrids. Please add more names."
+        )
+    # check if there are enough modifiers
+    if 0 < len(modifiers_list) < hybrid_count + 1:
+        raise ValueError(
+            f"Not enough modifiers to add {hybrid_count} hybrids. Please add more names."
+        )
+
     # build up list of prompts to run
     prompts = []
 
     # add all the artist prompts
-    for names in unique_combinations(names_list, count):
+    for names in unique_combinations(names_list, hybrid_count + 1):
         formatted_names = [_format_name_for_prompt(name) for name in names]
         base_filename = format_base_filename("_".join(formatted_names))
         for b in base_prompts:
@@ -149,7 +160,7 @@ def prepare_hybrid_prompts_for_study(
             )
 
     # add all the modifier prompts
-    for modifiers in unique_combinations(modifiers_list, count):
+    for modifiers in unique_combinations(modifiers_list, hybrid_count + 1):
         for b in base_prompts:
             base_filename = format_base_filename("_".join(modifiers))
             prompts.append(
