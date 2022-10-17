@@ -8,6 +8,14 @@ Parrot Zone text2image Tools
 
 A collection of tools for text2image models. Primarily stable diffusion. 
 
+# Paperspace Notebooks
+
+All notebooks are designed to run on paperspace. 
+
+To run the notebook:
+1. Create new "from scratch" paperspace instance
+1. Download the notebook you want to use from this repo 
+1. upload to the paperspace instance and follow the instructions for the hugging face login
 # Credits
 - Lead Developer - [Stephen Young](https://twitter.com/kyrickyoung)
 
