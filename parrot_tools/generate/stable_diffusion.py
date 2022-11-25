@@ -106,9 +106,12 @@ def generate_image_with_retries(
             init_strength=init_strength,
             init_max_pixels=init_max_pixels,
         )
-        image = res["sample"][0]
+        if isinstance(res, dict):
+            image = res["sample"][0]
+        else:
+            image = res.images[0]
         final_seed = i
-        if not res["nsfw_content_detected"][0]:
+        if (not isinstance(res, dict) and res.nsfw_content_detected is None) or not res["nsfw_content_detected"][0]:
             return image, final_seed
         print("retried!", i)
 
