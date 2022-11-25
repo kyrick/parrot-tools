@@ -1,3 +1,4 @@
+import csv
 import itertools
 from typing import Iterator, List
 
@@ -39,6 +40,24 @@ def _format_name_for_prompt(name: str) -> str:
     # if no last name, just return the first name
     return first
 
+def read_csv(csv_file_path: str) -> str:
+    """Read the csv of artist names. Expects the "last, first" to be the first column. Will concat into a block of text for the next portion.
+
+    Args:
+        file_path (str): absolute/path/to/file.csv
+
+    Returns:
+        str: block of names
+    """
+
+    names_block = ""
+    with open(csv_file_path) as infile:
+        reader = csv.reader(infile)
+        for row in reader:
+            last_first = row[0]
+            names_block += f"{last_first}\n"
+    
+    return names_block
 
 def prepare_prompts_for_study(
     base_prompts_block: str,
@@ -183,3 +202,9 @@ def prepare_hybrid_prompts_for_study(
             )
 
     return prompts
+
+
+
+if __name__ == "__main__":
+    block = read_csv("data.csv")
+    print(block)

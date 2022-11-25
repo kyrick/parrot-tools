@@ -3,6 +3,7 @@ from parrot_tools.utils.image_utils import make_image_grids
 from parrot_tools.utils.prompt_utils import (
     prepare_hybrid_prompts_for_study,
     prepare_prompts_for_study,
+    read_csv,
 )
 
 __all__ = [
@@ -10,4 +11,5 @@ __all__ = [
     "make_image_grids",
     "prepare_hybrid_prompts_for_study",
     "prepare_prompts_for_study",
+    "read_csv",
 ]
