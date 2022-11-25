@@ -205,9 +205,3 @@ def prepare_hybrid_prompts_for_study(
             )
 
     return prompts
-
-
-
-if __name__ == "__main__":
-    block = read_csv("data.csv")
-    print(block)
