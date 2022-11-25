@@ -41,7 +41,9 @@ def _format_name_for_prompt(name: str) -> str:
     return first
 
 def read_csv(csv_file_path: str) -> str:
-    """Read the csv of artist names. Expects the "last, first" to be the first column. Will concat into a block of text for the next portion.
+    """
+    Assumes the csv has a header row.
+    Read the csv of artist names. Expects the "last, first" to be the first column. Will concat into a block of text for the next portion.
 
     Args:
         file_path (str): absolute/path/to/file.csv
@@ -53,6 +55,7 @@ def read_csv(csv_file_path: str) -> str:
     names_block = ""
     with open(csv_file_path) as infile:
         reader = csv.reader(infile)
+        next(reader) # skip header row
         for row in reader:
             last_first = row[0]
             names_block += f"{last_first}\n"
