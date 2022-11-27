@@ -48,6 +48,7 @@ class BatchSettings(BaseModel):
     grid_max_images: int = 6
     grid_padding: int = 5
     grid_bg_color: str = "black"
+    display_grid_images: bool = True
 
 
 class RunSettings(BaseModel):

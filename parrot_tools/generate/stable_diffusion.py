@@ -190,5 +190,6 @@ def run_prompts(pipe, prompts: List[Prompt], batch_settings: BatchSettings):
                 bg_color=settings.batch.grid_bg_color,
             )
             for i, grid in enumerate(grids):
-                display(grid)
+                if settings.batch.display_grid_images:
+                    display(grid)
                 grid.save(str(settings.get_grid_image_path(run_id=run_id, grid_num=i)))
