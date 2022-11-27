@@ -50,6 +50,8 @@ class BatchSettings(BaseModel):
     grid_bg_color: str = "black"
     display_grid_images: bool = True
 
+    num_images_per_prompt: int = 1
+
 
 class RunSettings(BaseModel):
     prompt: Prompt
