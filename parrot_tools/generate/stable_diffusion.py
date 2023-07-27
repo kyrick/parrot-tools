@@ -123,4 +123,4 @@ def run_prompts(pipe, prompts: list[Prompt], batch_settings: BatchSettings):
             for i, grid in enumerate(grids):
                 if settings.batch.display_grid_images:
                     display(grid)
-                grid.save(str(settings.get_grid_image_path(run_id=run_id, grid_num=i)))
+                grid.save(str(settings.get_grid_image_path(grid_num=run_id+1)))
