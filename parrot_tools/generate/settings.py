@@ -64,7 +64,7 @@ class RunSettings(BaseModel):
     def save(self, run_id: int):
         settings_filename = self.settings_path / f"settings_{run_id:0>4d}.txt"
         with open(settings_filename, "w") as f:
-            f.write(self.model_dump_json(indent=4))
+            f.write(self.json(indent=4, sort_keys=True))
 
     @property
     def grid_path(self) -> Path:
