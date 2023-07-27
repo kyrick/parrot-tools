@@ -15,14 +15,6 @@ class Prompt(BaseModel):
     folder_name: Optional[str] = None
     base_filename: str
     prompt: str
-    init_image: Optional[Path] = None
-    init_strength: Optional[float] = None
-
-
-class SchedulerType(str, Enum):
-    K_LMS = "k_lms"
-    PNDM = "pndm"
-    DDIM = "ddim"
 
 
 class BatchSettings(BaseModel):
@@ -30,16 +22,13 @@ class BatchSettings(BaseModel):
     batch_name: str
     base_path: Path
 
-    scheduler: SchedulerType = SchedulerType.K_LMS
-
-    init_max_pixels: int = 262144
     steps: int = 50
     cfg_scale: float = 7.5
     seed: int = -1
     NSFW_retry: int = 0
 
     display_individual_images: bool = True
-    image_ext: ImageFormat = ImageFormat.PNG
+    image_ext: ImageFormat = ImageFormat.JPEG
     image_w: int = 512
     image_h: int = 512
 
@@ -75,7 +64,7 @@ class RunSettings(BaseModel):
     def save(self, run_id: int):
         settings_filename = self.settings_path / f"settings_{run_id:0>4d}.txt"
         with open(settings_filename, "w") as f:
-            f.write(self.json(indent=4, sort_keys=True))
+            f.write(self.model_dump_json(indent=4))
 
     @property
     def grid_path(self) -> Path:
