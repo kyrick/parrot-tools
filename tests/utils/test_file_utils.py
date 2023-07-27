@@ -29,22 +29,27 @@ def test_create_abs_filepath_no_image_num():
 def test_format_base_filename():
     style_name = "Aivazovsky, Ivan"
     base_filename = format_base_filename(style_name)
-    assert base_filename == "Aivazovsky_Ivan"
+    assert base_filename == "Ivan_Aivazovsky"
 
 
 def test_format_base_filename_no_comma():
-    style_name = "Aivazovsky Ivan"
+    style_name = "Ivan Aivazovsky"
     base_filename = format_base_filename(style_name)
-    assert base_filename == "Aivazovsky_Ivan"
+    assert base_filename == "Ivan_Aivazovsky"
 
 
 def test_format_base_filename_with_period():
     style_name = "Aivazovsky, Ivan."
     base_filename = format_base_filename(style_name)
-    assert base_filename == "Aivazovsky_Ivan"
+    assert base_filename == "Ivan_Aivazovsky"
 
 
 def test_format_base_filename_with_comma_and_blank():
     style_name = ", RHADS"
+    base_filename = format_base_filename(style_name)
+    assert base_filename == "RHADS"
+
+def test_format_base_filename_with_single_name():
+    style_name = "RHADS"
     base_filename = format_base_filename(style_name)
     assert base_filename == "RHADS"

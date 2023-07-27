@@ -68,10 +68,11 @@ class RunSettings(BaseModel):
 
     @property
     def grid_path(self) -> Path:
-        return self.images_out_path / "grids"
+        batch_path = self.batch.base_path / self.batch.batch_name
+        return batch_path / "grids"
 
-    def get_grid_image_path(self, *, run_id: int, grid_num: int) -> Path:
+    def get_grid_image_path(self, *, grid_num: int) -> Path:
         return (
             self.grid_path
-            / f"{self.prompt.base_filename}_{run_id:0>4d}_{grid_num:0>4d}.{self.batch.image_ext}"
+            / f"{self.prompt.base_filename}_{grid_num}.{self.batch.image_ext}"
         )

@@ -31,6 +31,6 @@ def format_base_filename(style_name: str) -> str:
 
     # if there is a comma, assume it's a person's name
     last, first = style_name.split(",")
-    parts = [part.strip() for part in last.split() + first.split() if part.strip()]
+    parts = [part.strip() for part in first.split() + last.split() if part.strip()]
 
     return "_".join(parts)
