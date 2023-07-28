@@ -1,13 +1,11 @@
-import csv
-import itertools
-from typing import Iterator, List
+from __future__ import annotations
 
 from parrot_tools.generate.settings import Prompt
-from parrot_tools.utils.file_utils import format_base_filename
 
 
 def _parse_name(name: str) -> str:
     """Parse name into format last, first"""
+    name = name.replace("n/a", "").replace("N/A", "").strip()
     name = name.replace("\t", ",").strip()
     if "," not in name:
         # if space in name, assume it's a first name
@@ -40,34 +38,31 @@ def _format_name_for_prompt(name: str) -> str:
     # if no last name, just return the first name
     return first
 
-def read_csv(csv_file_path: str) -> str:
-    """
-    Assumes the csv has a header row.
-    Read the csv of artist names. Expects the "last, first" to be the first column. Will concat into a block of text for the next portion.
+def format_base_filename(style_name: str) -> str:
+    """Format modifier for a filename.
+    If this is a person's name respect first and last name"""
 
-    Args:
-        file_path (str): absolute/path/to/file.csv
+    # strip period which could conflict with filename and replace tabs with commas
+    style_name = style_name.replace(".", "")
 
-    Returns:
-        str: block of names
-    """
+    style_name = style_name.replace("N/A", "").replace("n/a", "")
 
-    names_block = ""
-    with open(csv_file_path) as infile:
-        reader = csv.reader(infile)
-        next(reader) # skip header row
-        for row in reader:
-            last_first = row[0]
-            names_block += f"{last_first}\n"
-    
-    return names_block
+    # if there is no comma, just return the name
+    if "," not in style_name:
+        return style_name.replace(" ", "_")
+
+    # if there is a comma, assume it's a person's name
+    last, first = style_name.split(",")
+    parts = [part.strip() for part in first.split() + last.split() if part.strip()]
+
+    return "_".join(parts)
 
 def prepare_prompts_for_study(
     base_prompts_block: str,
     names_block: str,
     modifiers_block: str,
     append_to_all_prompts: str,
-) -> List[Prompt]:
+) -> list[Prompt]:
     """Prepare prompts for study.
 
     Args:
@@ -77,7 +72,7 @@ def prepare_prompts_for_study(
         append_to_all_prompts (str): a string to append to all prompts
 
     Returns:
-        List[Prompt]: List of prompts to study
+        list[Prompt]: List of prompts to study
     """
 
     if append_to_all_prompts and not append_to_all_prompts.startswith(","):
@@ -93,9 +88,10 @@ def prepare_prompts_for_study(
             folder_name=format_base_filename(name),
             base_filename=format_base_filename(name),
             prompt=f"{b} by {_format_name_for_prompt(name)}{append_to_all_prompts}",
+            run_id=run_id,
         )
         for name in names_list
-        for b in base_prompts
+        for run_id, b in enumerate(base_prompts)
     ]
 
     modifier_prompts = [
@@ -103,105 +99,10 @@ def prepare_prompts_for_study(
             folder_name=format_base_filename(modifier),
             base_filename=format_base_filename(modifier),
             prompt=f"{b}, {modifier}{append_to_all_prompts}",
+            run_id=run_id,
         )
         for modifier in modifiers_list
-        for b in base_prompts
+        for run_id, b in enumerate(base_prompts)
     ]
 
     return artist_prompts + modifier_prompts
-
-
-def unique_combinations(items: List[str], n) -> Iterator[List[str]]:
-    """Generate every possible unique combination of elements in a list.
-
-    Args:
-        iterable (list): list of elements
-        n (int): length of combinations
-
-    Returns:
-        list: list of combinations
-    """
-    for x in itertools.combinations(items, n):
-        yield list(x)
-
-
-def prepare_hybrid_prompts_for_study(
-    base_prompts_block: str,
-    names_block: str,
-    modifiers_block: str,
-    append_to_all_prompts: str,
-    hybrid_count: int,
-    hybridize_everything: bool = False,
-) -> List[Prompt]:
-    """Prepare prompts for study.
-
-    Args:
-        base_prompts_block (str): block of prompts separated by newlines
-        names_block (str): block of names separated by newlines
-        modifiers_block (str): block of modifiers separated by newlines
-        append_to_all_prompts (str): a string to append to all prompts
-        hybrid_count (int): the count of additional modifiers to add to each prompt
-        hybridize_everything (bool): whether to names and modifiers
-
-    Returns:
-        List[Prompt]: List of prompts to study
-    """
-
-    # clean up the append to all prompts
-    if append_to_all_prompts and not append_to_all_prompts.startswith(","):
-        append_to_all_prompts = ", " + append_to_all_prompts
-
-    # split up the blocks into lists
-    names_list = [
-        _format_name_for_prompt(_parse_name(x))
-        for x in names_block.splitlines()
-        if x.strip()
-    ]
-    modifiers_list = [x.strip() for x in modifiers_block.splitlines() if x.strip()]
-    base_prompts = [x.strip() for x in base_prompts_block.splitlines() if x.strip()]
-
-    # if hybridize everything, add the names and modifiers to the lists and hybridize ALL THE THINGS!!!
-    if hybridize_everything:
-        # build up list of prompts to run
-        prompts = []
-
-        names_list = [f"by {name}" for name in names_list]
-        for items in unique_combinations(names_list + modifiers_list, hybrid_count + 1):
-            for b in base_prompts:
-                base_filename = format_base_filename("_".join(items))
-                prompts.append(
-                    Prompt(
-                        folder_name=base_filename,
-                        base_filename=base_filename,
-                        prompt=f"{b}, {', '.join(items)}{append_to_all_prompts}",
-                    )
-                )
-        return prompts
-
-    # build up list of prompts to run
-    prompts = []
-    # add all the artist prompts
-    for names in unique_combinations(names_list, hybrid_count + 1):
-        base_filename = format_base_filename("_".join(names))
-        for b in base_prompts:
-            prompts.append(
-                Prompt(
-                    folder_name=base_filename,
-                    base_filename=base_filename,
-                    prompt=f"{b} by {' and '.join(names)}{append_to_all_prompts}",
-                )
-            )
-
-    # add all the modifier prompts
-    for modifiers in unique_combinations(modifiers_list, hybrid_count + 1):
-        for b in base_prompts:
-            base_filename = format_base_filename("_".join(modifiers))
-            prompts.append(
-                Prompt(
-                    folder_name=base_filename,
-                    base_filename=base_filename,
-                    prompt=f"{b}, {', '.join(modifiers)}{append_to_all_prompts}",
-                )
-            )
-
-    return prompts

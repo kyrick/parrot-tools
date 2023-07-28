@@ -1,8 +1,6 @@
-import pytest
-
 from parrot_tools.utils.prompt_utils import (
-    prepare_hybrid_prompts_for_study,
     prepare_prompts_for_study,
+    format_base_filename
 )
 
 
@@ -31,26 +29,26 @@ def test_prepare_prompts_for_study():
     )
 
     assert len(prompts) == 14
-    assert prompts[0].folder_name == "Aivazovsky_Ivan"
-    assert prompts[0].base_filename == "Aivazovsky_Ivan"
+    assert prompts[0].folder_name == "Ivan_Aivazovsky"
+    assert prompts[0].base_filename == "Ivan_Aivazovsky"
     assert prompts[0].prompt == "This is a test prompt by Ivan Aivazovsky, artstation"
     assert (
         prompts[1].prompt
         == "This is another test prompt by Ivan Aivazovsky, artstation"
     )
 
-    assert prompts[2].folder_name == "da_Vinci_Leonardo"
-    assert prompts[2].base_filename == "da_Vinci_Leonardo"
+    assert prompts[2].folder_name == "Leonardo_da_Vinci"
+    assert prompts[2].base_filename == "Leonardo_da_Vinci"
 
-    assert prompts[4].folder_name == "Friedrich_Caspar_David"
-    assert prompts[4].base_filename == "Friedrich_Caspar_David"
+    assert prompts[4].folder_name == "Caspar_David_Friedrich"
+    assert prompts[4].base_filename == "Caspar_David_Friedrich"
 
     assert prompts[6].folder_name == "RHADS"
     assert prompts[6].base_filename == "RHADS"
     assert prompts[6].prompt == "This is a test prompt by RHADS, artstation"
 
-    assert prompts[8].folder_name == "Pranckevicius_Gediminas"
-    assert prompts[8].base_filename == "Pranckevicius_Gediminas"
+    assert prompts[8].folder_name == "Gediminas_Pranckevicius"
+    assert prompts[8].base_filename == "Gediminas_Pranckevicius"
     assert (
         prompts[8].prompt
         == "This is a test prompt by Gediminas Pranckevicius, artstation"
@@ -108,8 +106,8 @@ def test_prepare_prompts_for_study_with_empty_modifiers_block():
     )
 
     assert len(prompts) == 2
-    assert prompts[0].folder_name == "Aivazovsky_Ivan"
-    assert prompts[0].base_filename == "Aivazovsky_Ivan"
+    assert prompts[0].folder_name == "Ivan_Aivazovsky"
+    assert prompts[0].base_filename == "Ivan_Aivazovsky"
     assert prompts[0].prompt == "This is a test prompt by Ivan Aivazovsky, artstation"
     assert (
         prompts[1].prompt
@@ -136,121 +134,45 @@ def test_prepare_prompts_for_study_with_empty_append_to_all_prompts():
     )
 
     assert len(prompts) == 2
-    assert prompts[0].folder_name == "Aivazovsky_Ivan"
-    assert prompts[0].base_filename == "Aivazovsky_Ivan"
+    assert prompts[0].folder_name == "Ivan_Aivazovsky"
+    assert prompts[0].base_filename == "Ivan_Aivazovsky"
     assert prompts[0].prompt == "This is a test prompt by Ivan Aivazovsky"
     assert prompts[1].prompt == "This is another test prompt by Ivan Aivazovsky"
 
 
-def test_prepare_hybrid_prompts_for_study__names():
-
-    base_prompts_block = """
-    This is a test prompt
-    This is another test prompt
-    """
-
-    names_block = """
-    Aivazovsky, Ivan
-    RHADS
-    """
-
-    modifiers_block = ""
-
-    append_to_all_prompts = "artstation"
-
-    prompts = prepare_hybrid_prompts_for_study(
-        base_prompts_block,
-        names_block,
-        modifiers_block,
-        append_to_all_prompts,
-        hybrid_count=1,
-    )
-
-    assert len(prompts) == 2
-    assert prompts[0].folder_name == "Ivan_Aivazovsky_RHADS"
-    assert prompts[0].base_filename == "Ivan_Aivazovsky_RHADS"
-    assert (
-        prompts[0].prompt
-        == "This is a test prompt by Ivan Aivazovsky and RHADS, artstation"
-    )
-    assert (
-        prompts[1].prompt
-        == "This is another test prompt by Ivan Aivazovsky and RHADS, artstation"
-    )
+def test_format_base_filename():
+    style_name = "Aivazovsky, Ivan"
+    base_filename = format_base_filename(style_name)
+    assert base_filename == "Ivan_Aivazovsky"
 
 
-def test_prepare_hybrid_prompts_for_study__modifiers():
-
-    base_prompts_block = """
-    This is a test prompt
-    This is another test prompt
-    """
-
-    names_block = ""
-
-    modifiers_block = """
-    synthwave
-    vaporwave
-    """
-
-    append_to_all_prompts = "artstation"
-
-    prompts = prepare_hybrid_prompts_for_study(
-        base_prompts_block,
-        names_block,
-        modifiers_block,
-        append_to_all_prompts,
-        hybrid_count=1,
-    )
-
-    assert len(prompts) == 2
-    assert prompts[0].folder_name == "synthwave_vaporwave"
-    assert prompts[0].base_filename == "synthwave_vaporwave"
-    assert (
-        prompts[0].prompt == "This is a test prompt, synthwave, vaporwave, artstation"
-    )
-    assert (
-        prompts[1].prompt
-        == "This is another test prompt, synthwave, vaporwave, artstation"
-    )
+def test_format_base_filename_no_comma():
+    style_name = "Ivan Aivazovsky"
+    base_filename = format_base_filename(style_name)
+    assert base_filename == "Ivan_Aivazovsky"
 
 
-def test_prepare_hybrid_prompts_for_study__names_and_modifiers():
+def test_format_base_filename_with_period():
+    style_name = "Aivazovsky, Ivan."
+    base_filename = format_base_filename(style_name)
+    assert base_filename == "Ivan_Aivazovsky"
 
-    base_prompts_block = """
-    This is a test prompt
-    This is another test prompt
-    """
 
-    names_block = """
-    Aivazovsky, Ivan
-    RHADS
-    """
+def test_format_base_filename_with_comma_and_blank():
+    style_name = ", RHADS"
+    base_filename = format_base_filename(style_name)
+    assert base_filename == "RHADS"
 
-    modifiers_block = """
-    synthwave
-    """
+def test_format_base_filename_with_single_name():
+    style_name = "RHADS"
+    base_filename = format_base_filename(style_name)
+    assert base_filename == "RHADS"
 
-    append_to_all_prompts = "artstation"
+def test_format_base_filename_with_na():
+    style_name = "N/A, Ivan"
+    base_filename = format_base_filename(style_name)
+    assert base_filename == "Ivan"
 
-    prompts = prepare_hybrid_prompts_for_study(
-        base_prompts_block,
-        names_block,
-        modifiers_block,
-        append_to_all_prompts,
-        hybrid_count=1,
-        hybridize_everything=True,
-    )
-
-    assert len(prompts) == 6
-    assert prompts[0].folder_name == "by_Ivan_Aivazovsky_by_RHADS"
-    assert prompts[0].base_filename == "by_Ivan_Aivazovsky_by_RHADS"
-    assert (
-        prompts[0].prompt
-        == "This is a test prompt, by Ivan Aivazovsky, by RHADS, artstation"
-    )
-
-    assert (
-        prompts[5].prompt
-        == "This is another test prompt, by RHADS, synthwave, artstation"
-    )
+    style_name = "n/a, Ivan"
+    base_filename = format_base_filename(style_name)
+    assert base_filename == "Ivan"

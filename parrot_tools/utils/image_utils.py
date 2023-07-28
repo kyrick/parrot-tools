@@ -1,43 +1,31 @@
-from typing import List, Optional
+from __future__ import annotations
 
 from PIL import Image
 
 
-def make_image_grids(
-    images: List[Image.Image],
-    cols: Optional[int] = None,
-    max_per_grid: int = 6,
+def make_images_grid(
+    images: list[Image.Image],
+    cols: int,
     padding: int = 10,
     bg_color: str = "black",
-) -> List[Image.Image]:
+) -> Image.Image:
     """Make a list of image grids from a list of images."""
 
-    # calc columns and rows from max_per_grid with max cols
-    if cols is None or cols > max_per_grid or cols < 1:
-        cols = max_per_grid // 2
-        rows = max_per_grid // cols
-    else:
-        rows = max_per_grid // cols
+    total_images = len(images)
 
-    # split images into sublists of max_per_grid
-    image_sublists = [
-        images[i : i + max_per_grid] for i in range(0, len(images), max_per_grid)
-    ]
+    rows = total_images // cols
 
     width, height = images[0].size
 
     total_w = cols * width + padding * (cols + 1)
     total_h = rows * height + padding * (rows + 1)
 
-    grids = []
-    for image_sublist in image_sublists:
-        grid = Image.new("RGB", size=(total_w, total_h), color=bg_color)
-        for j, image in enumerate(image_sublist):
-            x = j % cols
-            y = j // cols
-            grid.paste(
-                image, (x * width + padding * (x + 1), y * height + padding * (y + 1))
-            )
-        grids.append(grid)
+    grid = Image.new("RGB", size=(total_w, total_h), color=bg_color)
+    for j, image in enumerate(images):
+        x = j % cols
+        y = j // cols
+        grid.paste(
+            image, (x * width + padding * (x + 1), y * height + padding * (y + 1))
+        )
 
-    return grids
+    return grid
